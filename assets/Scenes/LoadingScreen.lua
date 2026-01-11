@@ -1,0 +1,3 @@
+local LoadingScreen = {}
+
+return LoadingScreen

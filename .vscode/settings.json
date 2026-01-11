@@ -1,0 +1,17 @@
+{
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.runtime.builtin": {
+      "table": "default",
+      "string": "default",
+      "math": "default"
+    },
+    "Lua.workspace.library": [
+      "./Framework"
+    ],
+    "Lua.diagnostics.globals": [
+      "love"
+    ],
+    "Lua.diagnostics.disable": [
+      "duplicate-set-field"
+    ]
+  }

@@ -1,0 +1,7 @@
+{
+  "name": "Love2ds-Steel",
+  "description": "Small helper project file. Use the provided VS Code task 'Run Love2D' or bind Alt+L to run the task.",
+  "scripts": {
+    "run:love": "love ."
+  }
+}

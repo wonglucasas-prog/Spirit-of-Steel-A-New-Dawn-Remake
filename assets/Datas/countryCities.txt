@@ -1,0 +1,4 @@
+2823=[Singapore,Capital]
+2755=[Kuala Lumpur,Capital]
+609=[London,Capital]
+739=[Paris,Capital]
