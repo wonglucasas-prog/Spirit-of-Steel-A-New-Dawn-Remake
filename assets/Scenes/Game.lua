@@ -164,6 +164,7 @@ function Game.initializeGui()
     dicisionButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
     dicisionButton.dimension = Framework.Dim2.new(100 * Game.UIScale, 22 * Game.UIScale)
     dicisionButton.borderSize = 0
+    dicisionButton.fontScale = 1
     dicisionButton.cornerRadius = 3 * Game.UIScale
     dicisionButton.zIndex = 102
 
@@ -172,6 +173,7 @@ function Game.initializeGui()
     researchButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
     researchButton.dimension = Framework.Dim2.new(100 * Game.UIScale, 22 * Game.UIScale)
     researchButton.borderSize = 0
+    researchButton.fontScale = 1
     researchButton.cornerRadius = 3 * Game.UIScale
     researchButton.zIndex = 102
 
@@ -316,25 +318,76 @@ function Game.initializeDivisions()
     local DivisionTemplate = require("assets.Objects.DivisionTemplate")
     local Division = require("assets.Objects.Division")
 
-    Game.Divisions = Game.Divisions or {}
+    Game.Divisions = {}
+    Game.DivisionGuis = {}
 
-    local d1 = Division.new(DivisionTemplate.Presets.Infantry:toTable())
-    d1.name = "1st Infantry Division"
-    local d2 = Division.new(DivisionTemplate.Presets.Armor:toTable())
-    d2.name = "1st Armored Division"
+    local function newDivision(name, owner, province)
+        local division = Division.new(DivisionTemplate.Presets.Infantry:toTable())
+        division.name = name
+        division.owner = owner
+        division.CurrentProvince = province
 
-    table.insert(Game.Divisions, d1)
-    table.insert(Game.Divisions, d2)
+        table.insert(Game.Divisions, division)
 
-    local firstProv, secondProv = nil, nil
-    for _, p in pairs(Main.Provinces) do
-        if not firstProv then firstProv = p
-        elseif not secondProv then secondProv = p; break
+        local divisionFrame = Framework.Frame.new()
+        divisionFrame.dimension = Framework.Dim2.new(40, 25)
+        divisionFrame.backgroundColor = Framework.Color4.new(.1, .1, .1, 1)
+        divisionFrame.cornerRadius = 0
+        divisionFrame.borderSize = 0
+        divisionFrame.zIndex = 1
+        divisionFrame.canMouseDown = true
+
+        divisionFrame.onClick = function()
+            divisionFrame.borderSize = divisionFrame.borderSize == 1 and 0 or 1
+        end
+
+        local divisionLabel = Framework.Label.new(name)
+        divisionLabel.dimension = divisionFrame.dimension
+        divisionLabel.textAlignment = Framework.TextManager.Alignment.Center
+        divisionLabel.zIndex = 2
+        divisionLabel.fontScale = 0.7
+        
+        local ownerFlag = Framework.Image.new(string.format("flags/%s.png", owner))
+        ownerFlag.scaleMode = "fill"
+        ownerFlag.zIndex = 2
+        
+        local flagScale = divisionLabel.dimension.height * 0.8 / ownerFlag.dimension.height
+        ownerFlag.dimension = Framework.Dim2.new(ownerFlag.dimension.width * flagScale, ownerFlag.dimension.height * flagScale)
+
+        divisionFrame.dimension = Framework.Dim2.new(divisionFrame.dimension.width + ownerFlag.dimension.width, divisionFrame.dimension.height)
+        
+        divisionFrame.onUpdate = function(dt)
+            local mx, my = love.mouse.getPosition()
+            local mouseDown = love.mouse.isDown(1)
+
+            local center = province.Center
+            local screenX, screenY = Game.Camera:toScreen(center.x, center.y)
+
+            divisionFrame.position = Framework.Vector2.new(screenX - divisionFrame.dimension.width / 2, screenY - divisionFrame.dimension.height / 2)
+            divisionLabel.position = Framework.Vector2.new(divisionFrame.position.x + ownerFlag.dimension.width, divisionFrame.position.y)
+            ownerFlag.position = Framework.Vector2.new(divisionFrame.position.x + divisionFrame.dimension.height * 0.2 / 2, divisionFrame.position.y + divisionFrame.dimension.height * 0.2 / 2)
+
+            divisionFrame:updateMouse(mx, my, mouseDown)
+        end
+
+        Game.DivisionGuis[name] = {
+            OwnerFlag = ownerFlag,
+            DivisionFrame = divisionFrame,
+            DivisionLabel = divisionLabel
+        }
+    end
+
+    local targetProvince = nil
+    if Main and Main.ProvincesManager then 
+        for _, province in pairs(Main.ProvincesManager.Provinces) do
+            if province.Id == 200 then targetProvince = province end
         end
     end
 
-    if firstProv then d1.CurrentProvince = firstProv end
-    if secondProv then d2.CurrentProvince = secondProv end
+    if targetProvince then
+        newDivision("123", "ITA", targetProvince)
+        Framework.GuiManager.add("DivisionGuis", Game.DivisionGuis)
+    end
 end
 
 function Game.initialize()
@@ -555,9 +608,10 @@ function Game.update(dt)
     Game.clampCameraPosition()
     Game.TimeTick(dt)
 
-    Framework.GuiManager.update("TopBar")
-
     Game.Camera:update(dt)
+
+    Framework.GuiManager.update("TopBar")
+    Framework.GuiManager.update("DivisionGuis")
 
     do
         local mx, my = love.mouse.getPosition()
@@ -602,6 +656,7 @@ end
 
 function Game.drawGui()
     Framework.GuiManager.draw("TopBar")
+    Framework.GuiManager.draw("DivisionGuis")
 end
 
 function Game.draw()
@@ -630,7 +685,7 @@ function Game.draw()
     
 
     Game.Camera:draw(scaledCameraDraw)
-    Game.drawDivisions()
+    --Game.drawDivisions()
 
     Game.drawGui()
 end

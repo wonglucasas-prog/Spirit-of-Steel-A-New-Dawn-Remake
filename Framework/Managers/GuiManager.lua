@@ -2,127 +2,67 @@ local GuiManager = {}
 
 GuiManager.ScreenGuis = {}
 
-function GuiManager.add(key, guiComponent)
-    local guiComponents = nil
-    if type(guiComponent) == "table" then
-        guiComponents = guiComponent
+local function executeDeep(tbl, methodName, ...)
+    local children = {}
+
+    for k, v in pairs(tbl) do
+        if type(v) == "table" and k ~= "parent" and k ~= "Owner" then
+            table.insert(children, v)
+        end
     end
 
+    table.sort(children, function(a, b)
+        return (a.zIndex or 0) < (b.zIndex or 0)
+    end)
+
+    for _, v in ipairs(children) do
+        if v[methodName] and type(v[methodName]) == "function" then
+            v[methodName](v, ...)
+        end
+
+        executeDeep(v, methodName, ...)
+    end
+end
+
+function GuiManager.add(key, guiComponent)
     if not GuiManager.ScreenGuis[key] then
         GuiManager.ScreenGuis[key] = {}
     end
 
-    if guiComponents then
-        for _, guiComponent in pairs(guiComponents) do
-            table.insert(GuiManager.ScreenGuis[key], guiComponent)
+    if type(guiComponent) == "table" and not guiComponent.draw  and not guiComponent.onUpdate then
+        for _, component in pairs(guiComponent) do
+            table.insert(GuiManager.ScreenGuis[key], component)
         end
     else
         table.insert(GuiManager.ScreenGuis[key], guiComponent)
     end
+
     table.sort(GuiManager.ScreenGuis[key], function(a, b)
-        return a.zIndex < b.zIndex
+        return (a.zIndex or 0) < (b.zIndex or 0)
     end)
 end
 
 function GuiManager.update(key, dt)
     if key and GuiManager.ScreenGuis[key] then
-        for _, guiComponent in pairs(GuiManager.ScreenGuis[key]) do
-            if guiComponent.update then
-                guiComponent:update(dt)
-            end
-        end
+        executeDeep(GuiManager.ScreenGuis[key], "onUpdate", dt)
     end
 end
 
 function GuiManager.draw(key)
     if key and GuiManager.ScreenGuis[key] then
-        for _, guiComponent in pairs(GuiManager.ScreenGuis[key]) do
-            if guiComponent.draw then guiComponent:draw() end
-        end
-    end
-end
-
-local GuiManager = {}
-
-GuiManager.ScreenGuis = {}
-
-function GuiManager.add(key, guiComponent)
-    local guiComponents = nil
-    if type(guiComponent) == "table" then
-        guiComponents = guiComponent
-    end
-
-    if not GuiManager.ScreenGuis[key] then
-        GuiManager.ScreenGuis[key] = {}
-    end
-
-    if guiComponents then
-        for _, guiComponent in pairs(guiComponents) do
-            table.insert(GuiManager.ScreenGuis[key], guiComponent)
-        end
-    else
-        table.insert(GuiManager.ScreenGuis[key], guiComponent)
-    end
-    table.sort(GuiManager.ScreenGuis[key], function(a, b)
-        return a.zIndex < b.zIndex
-    end)
-end
-
-function GuiManager.update(key, ...)
-    if key and GuiManager.ScreenGuis[key] then
-        for _, guiComponent in pairs(GuiManager.ScreenGuis[key]) do
-            if guiComponent.onUpdate then guiComponent.onUpdate(...) end
-        end
-    end
-end
-
-local GuiManager = {}
-
-GuiManager.ScreenGuis = {}
-
-function GuiManager.add(key, guiComponent)
-    local guiComponents = nil
-    if type(guiComponent) == "table" then
-        guiComponents = guiComponent
-    end
-
-    if not GuiManager.ScreenGuis[key] then
-        GuiManager.ScreenGuis[key] = {}
-    end
-
-    if guiComponents then
-        for _, guiComponent in pairs(guiComponents) do
-            table.insert(GuiManager.ScreenGuis[key], guiComponent)
-        end
-    else
-        table.insert(GuiManager.ScreenGuis[key], guiComponent)
-    end
-    table.sort(GuiManager.ScreenGuis[key], function(a, b)
-        return a.zIndex < b.zIndex
-    end)
-end
-
-function GuiManager.update(key)
-    if key and GuiManager.ScreenGuis[key] then
-        for _, guiComponent in pairs(GuiManager.ScreenGuis[key]) do
-            if guiComponent.update then guiComponent:update() end
-        end
-    end
-end
-
-function GuiManager.draw(key)
-    if key and GuiManager.ScreenGuis[key] then
-        for _, guiComponent in pairs(GuiManager.ScreenGuis[key]) do
-            if guiComponent.draw then guiComponent:draw() end
-        end
+        executeDeep(GuiManager.ScreenGuis[key], "draw")
     end
 end
 
 function GuiManager.wheelmoved(key, ...)
     if key and GuiManager.ScreenGuis[key] then
-        for _, guiComponent in pairs(GuiManager.ScreenGuis[key]) do
-            if guiComponent.wheelmoved then guiComponent:wheelmoved(...) end
-        end
+        executeDeep(GuiManager.ScreenGuis[key], "wheelmoved", ...)
+    end
+end
+
+function GuiManager.mousepressed(key, ...)
+    if key and GuiManager.ScreenGuis[key] then
+        executeDeep(GuiManager.ScreenGuis[key], "mousepressed", ...)
     end
 end
 

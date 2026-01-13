@@ -12,6 +12,8 @@ function Button.new(text)
     self.pressColor = Framework.Color4.new(.2, .2, .2, 1)
     self.textColor = Framework.Color4.new(1, 1, 1, 1)
 
+    self.fontScale = 1
+
     self.cornerRadius = 4
     self.borderSize = 2
 
@@ -59,16 +61,31 @@ function Button:draw()
         )
     end
 
-    local font = love.graphics.getFont()
-    local yOffset = Framework.TextManager.getTextYOffset(font, self.textVAlignment, self.dimension)
-
+    local activeFont = self.font or love.graphics.getFont()
+    local scale = self.fontScale or 1
+    
+    love.graphics.setFont(activeFont)
     love.graphics.setColor(self.textColor:packed())
+
+    local standardHeight = activeFont:getHeight()
+    local scaledHeight = standardHeight * scale
+
+    local yOffset = 0
+    if self.textVAlignment == Framework.TextManager.VAlignment.Center then
+        yOffset = (self.dimension.height - scaledHeight) / 2
+    elseif self.textVAlignment == Framework.TextManager.VAlignment.Bottom then
+        yOffset = self.dimension.height - scaledHeight
+    end
+
     love.graphics.printf(
         self.text,
         self.position.x,
         self.position.y + yOffset,
-        self.dimension.width,
-        string.lower(self.textAlignment.Name)
+        self.dimension.width / scale,
+        string.lower(self.textAlignment.Name),
+        0,
+        scale,
+        scale
     )
 
     love.graphics.pop()

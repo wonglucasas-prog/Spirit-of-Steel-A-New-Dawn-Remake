@@ -4,24 +4,21 @@
 local Division = {}
 Division.__index = Division
 
--- Creates a new Division. Fields:
--- name: string (optional)
--- softAttack: number
--- hardAttack: number
--- hardness: number
--- defense: number
--- breakthrough: number
--- width: number (operational width)
 function Division.new(params)
     params = params or {}
     local self = setmetatable({}, Division)
     self.name = params.name or "unnamed"
+    self.owner = params.owner or nil
+
+    self.divisionTemplate = 0
+
     self.softAttack = params.softAttack or 0
     self.hardAttack = params.hardAttack or 0
     self.hardness = params.hardness or 0
     self.defense = params.defense or 0
     self.breakthrough = params.breakthrough or 0
     self.width = params.width or 1
+    
     return self
 end
 
@@ -32,6 +29,7 @@ end
 function Division:toTable()
     return {
         name = self.name,
+        owner = self.owner,
         softAttack = self.softAttack,
         hardAttack = self.hardAttack,
         hardness = self.hardness,
