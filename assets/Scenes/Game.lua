@@ -54,6 +54,7 @@ function Game.initializeGui()
     dateLabel.dimension = Framework.Dim2.new(250 * Game.UIScale, 15 * Game.UIScale)
     dateLabel.textAlignment = Framework.TextManager.Alignment.Right
     dateLabel.zIndex = 102
+    dateLabel:setText("01/01/1935  01:00")
 
     local plusButton = Framework.Button.new("+")
     plusButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
@@ -98,66 +99,72 @@ function Game.initializeGui()
     moneyIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
     moneyIcon.zIndex = 102
 
-    local moneyLabel = Framework.Label.new("500")
+    local moneyLabel = Framework.Label.new("")
     moneyLabel.position = Framework.Vector2.new(moneyIcon.position.x + moneyIcon.dimension.width + 5 * Game.UIScale, 10 * Game.UIScale)
     moneyLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
     moneyLabel.textAlignment = Framework.TextManager.Alignment.Center
     moneyLabel.zIndex = 102
+    moneyLabel:setText("150M")
 
     local adminIcon = Framework.Image.new("icons/admin.png")
     adminIcon.position = Framework.Vector2.new(moneyLabel.position.x + moneyLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     adminIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
     adminIcon.zIndex = 102
 
-    local adminLabel = Framework.Label.new("150")
+    local adminLabel = Framework.Label.new("")
     adminLabel.position = Framework.Vector2.new(adminIcon.position.x + adminIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     adminLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
     adminLabel.textAlignment = Framework.TextManager.Alignment.Center
     adminLabel.zIndex = 102
+    adminLabel:setText("150")
 
     local researchIcon = Framework.Image.new("icons/research.png")
     researchIcon.position = Framework.Vector2.new(adminLabel.position.x + adminLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     researchIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
     researchIcon.zIndex = 102
 
-    local researchLabel = Framework.Label.new("30")
+    local researchLabel = Framework.Label.new("")
     researchLabel.position = Framework.Vector2.new(researchIcon.position.x + researchIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     researchLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
     researchLabel.textAlignment = Framework.TextManager.Alignment.Center
     researchLabel.zIndex = 102
+    researchLabel:setText("50")
 
     local manpowerIcon = Framework.Image.new("icons/manpower.png")
     manpowerIcon.position = Framework.Vector2.new(researchLabel.position.x + researchLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     manpowerIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
     manpowerIcon.zIndex = 102
 
-    local manpowerLabel = Framework.Label.new("2.5M")
+    local manpowerLabel = Framework.Label.new("")
     manpowerLabel.position = Framework.Vector2.new(manpowerIcon.position.x + manpowerIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     manpowerLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
     manpowerLabel.textAlignment = Framework.TextManager.Alignment.Center
     manpowerLabel.zIndex = 102
+    manpowerLabel:setText("2.5M")
 
     local factoriesIcon = Framework.Image.new("icons/factory.png")
     factoriesIcon.position = Framework.Vector2.new(manpowerLabel.position.x + manpowerLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     factoriesIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
     factoriesIcon.zIndex = 102
 
-    local factoriesLabel = Framework.Label.new("12")
+    local factoriesLabel = Framework.Label.new("")
     factoriesLabel.position = Framework.Vector2.new(factoriesIcon.position.x + factoriesIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     factoriesLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
     factoriesLabel.textAlignment = Framework.TextManager.Alignment.Center
     factoriesLabel.zIndex = 102
+    factoriesLabel:setText("12")
 
     local stabilityIcon = Framework.Image.new("icons/stability.png")
     stabilityIcon.position = Framework.Vector2.new(factoriesLabel.position.x + factoriesLabel.dimension.width + (7 * Game.UIScale), 10 * Game.UIScale)
     stabilityIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
     stabilityIcon.zIndex = 102
 
-    local stabilityLabel = Framework.Label.new("85%")
+    local stabilityLabel = Framework.Label.new("")
     stabilityLabel.position = Framework.Vector2.new(stabilityIcon.position.x + stabilityIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
     stabilityLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
     stabilityLabel.textAlignment = Framework.TextManager.Alignment.Center
     stabilityLabel.zIndex = 102
+    stabilityLabel:setText("85%")
 
     local dicisionButton = Framework.Button.new("Dicision")
     dicisionButton.position = Framework.Vector2.new(playAsCountryFlag.dimension.width + (20 * Game.UIScale), 45 * Game.UIScale)
@@ -269,6 +276,7 @@ function Game.initializeGui()
 
         dateLabel.position = Framework.Vector2.new(love.graphics.getWidth() - (345 * Game.UIScale), 10 * Game.UIScale)
         dateLabel.text = string.format("%02d/%02d/%04d  %02d:00", Game.Date.Day, Game.Date.Month, Game.Date.Year, Game.Date.Hour)
+        dateLabel:setText(dateLabel.text)
 
         dicisionButton:updateMouse(mx, my, mouseDown)
         researchButton:updateMouse(mx, my, mouseDown)
@@ -319,7 +327,22 @@ function Game.initializeDivisions()
     local Division = require("assets.Objects.Division")
 
     Game.Divisions = {}
-    Game.DivisionGuis = {}
+    Game.DivisionPositionsX = {}
+    Game.DivisionPositionsY = {}
+    Game.DivisionOwners = {}
+    Game.DivisionCounts = {}
+    
+    Game.FlagAtlas = {}
+    Game.FlagQuads = {}
+    
+    local divisionIconImg = love.graphics.newImage("icons/manpower.png")
+    Game.DivisionBatch = love.graphics.newSpriteBatch(divisionIconImg, 10000, "stream")
+    
+    local function loadFlagTexture(countryTag)
+        if not Game.FlagAtlas[countryTag] then
+            Game.FlagAtlas[countryTag] = love.graphics.newImage(string.format("flags/%s.png", countryTag))
+        end
+    end
 
     local function newDivision(name, owner, province)
         local division = Division.new(DivisionTemplate.Presets.Infantry:toTable())
@@ -327,67 +350,34 @@ function Game.initializeDivisions()
         division.owner = owner
         division.CurrentProvince = province
 
-        table.insert(Game.Divisions, division)
-
-        local divisionFrame = Framework.Frame.new()
-        divisionFrame.dimension = Framework.Dim2.new(40, 25)
-        divisionFrame.backgroundColor = Framework.Color4.new(.1, .1, .1, 1)
-        divisionFrame.cornerRadius = 0
-        divisionFrame.borderSize = 0
-        divisionFrame.zIndex = 1
-        divisionFrame.canMouseDown = true
-
-        divisionFrame.onClick = function()
-            divisionFrame.borderSize = divisionFrame.borderSize == 1 and 0 or 1
-        end
-
-        local divisionLabel = Framework.Label.new(name)
-        divisionLabel.dimension = divisionFrame.dimension
-        divisionLabel.textAlignment = Framework.TextManager.Alignment.Center
-        divisionLabel.zIndex = 2
-        divisionLabel.fontScale = 0.7
+        local idx = #Game.Divisions + 1
+        Game.Divisions[idx] = division
+        Game.DivisionPositionsX[idx] = province.Center.x
+        Game.DivisionPositionsY[idx] = province.Center.y
+        Game.DivisionOwners[idx] = owner
         
-        local ownerFlag = Framework.Image.new(string.format("flags/%s.png", owner))
-        ownerFlag.scaleMode = "fill"
-        ownerFlag.zIndex = 2
-        
-        local flagScale = divisionLabel.dimension.height * 0.8 / ownerFlag.dimension.height
-        ownerFlag.dimension = Framework.Dim2.new(ownerFlag.dimension.width * flagScale, ownerFlag.dimension.height * flagScale)
-
-        divisionFrame.dimension = Framework.Dim2.new(divisionFrame.dimension.width + ownerFlag.dimension.width, divisionFrame.dimension.height)
-        
-        divisionFrame.onUpdate = function(dt)
-            local mx, my = love.mouse.getPosition()
-            local mouseDown = love.mouse.isDown(1)
-
-            local center = province.Center
-            local screenX, screenY = Game.Camera:toScreen(center.x, center.y)
-
-            divisionFrame.position = Framework.Vector2.new(screenX - divisionFrame.dimension.width / 2, screenY - divisionFrame.dimension.height / 2)
-            divisionLabel.position = Framework.Vector2.new(divisionFrame.position.x + ownerFlag.dimension.width, divisionFrame.position.y)
-            ownerFlag.position = Framework.Vector2.new(divisionFrame.position.x + divisionFrame.dimension.height * 0.2 / 2, divisionFrame.position.y + divisionFrame.dimension.height * 0.2 / 2)
-
-            divisionFrame:updateMouse(mx, my, mouseDown)
-        end
-
-        Game.DivisionGuis[name] = {
-            OwnerFlag = ownerFlag,
-            DivisionFrame = divisionFrame,
-            DivisionLabel = divisionLabel
-        }
+        loadFlagTexture(owner)
     end
 
-    local targetProvince = nil
-    if Main and Main.ProvincesManager then 
-        for _, province in pairs(Main.ProvincesManager.Provinces) do
-            if province.Id == 200 then targetProvince = province end
+    if Main and Main.ProvincesManager then
+        for _, country in pairs(Main.CountriesManager.Countries) do
+            for _, province in pairs(country.Provinces) do
+                newDivision(province.Id, country.tag, province)
+            end
         end
     end
 
-    if targetProvince then
-        newDivision("123", "ITA", targetProvince)
-        Framework.GuiManager.add("DivisionGuis", Game.DivisionGuis)
-    end
+    local rectW, rectH = 40, 25
+    local textObj = love.graphics.newText(Main.Font)
+    
+    Game.DivisionTemplate = {
+        frame = {
+            w = rectW,
+            h = rectH,
+            color = {0.1, 0.1, 0.1, 1}
+        },
+        textObj = textObj
+    }
 end
 
 function Game.initialize()
@@ -602,6 +592,23 @@ function Game.TimeTick(dt)
     end
 end
 
+function Game.updateDivisionCounts()
+    Game.DivisionCounts = {}
+    
+    for i = 1, #Game.Divisions do
+        local province = Game.Divisions[i].CurrentProvince
+        if province then
+            if not Game.DivisionCounts[province] then
+                Game.DivisionCounts[province] = {
+                    count = 0,
+                    owner = Game.DivisionOwners[i]
+                }
+            end
+            Game.DivisionCounts[province].count = Game.DivisionCounts[province].count + 1
+        end
+    end
+end
+
 function Game.update(dt)
     Game.getMovementInput(dt)
     Game.updateCameraZoom(dt)
@@ -610,20 +617,35 @@ function Game.update(dt)
 
     Game.Camera:update(dt)
 
-    Framework.GuiManager.update("TopBar")
-    Framework.GuiManager.update("DivisionGuis")
-
-    do
-        local mx, my = love.mouse.getPosition()
-        local wx, wy = Game.Camera:toWorld(mx, my)
-        local mapW = Game.CurrentMapData:getWidth()
-        local mapH = Game.CurrentMapData:getHeight()
-
-        local fx = math.floor(wx)
-        local fy = math.floor(wy)
-        local ix0 = ((fx % mapW) + mapW) % mapW
-        local iy0 = ((fy % mapH) + mapH) % mapH
+    local frameCount = love.timer.getTime() * 60
+    local updateBatch = math.floor(frameCount) % 4
+    local batchSize = math.ceil(#Game.Divisions / 4)
+    local startIdx = updateBatch * batchSize + 1
+    local endIdx = math.min(startIdx + batchSize - 1, #Game.Divisions)
+    
+    for i = startIdx, endIdx do
+        local div = Game.Divisions[i]
+        if div.CurrentProvince then
+            Game.DivisionPositionsX[i] = div.CurrentProvince.Center.x
+            Game.DivisionPositionsY[i] = div.CurrentProvince.Center.y
+        end
     end
+    
+    if updateBatch == 0 then
+        Game.updateDivisionCounts()
+    end
+
+    Framework.GuiManager.update("TopBar", dt)
+
+    local mx, my = love.mouse.getPosition()
+    local wx, wy = Game.Camera:toWorld(mx, my)
+    local mapW = Game.CurrentMapData:getWidth()
+    local mapH = Game.CurrentMapData:getHeight()
+
+    local fx = math.floor(wx)
+    local fy = math.floor(wy)
+    local ix0 = ((fx % mapW) + mapW) % mapW
+    local iy0 = ((fy % mapH) + mapH) % mapH
 end
 
 
@@ -656,7 +678,7 @@ end
 
 function Game.drawGui()
     Framework.GuiManager.draw("TopBar")
-    Framework.GuiManager.draw("DivisionGuis")
+    Framework.GuiManager.draw("DivisionGuis", Game.Camera)
 end
 
 function Game.draw()
@@ -664,75 +686,108 @@ function Game.draw()
     local idText = targetProvince and tostring(targetProvince.Id) or "nil"
     local countryText = "none"
     local provinceCenter = Framework.Vector2.new(0, 0)
+    
     if targetProvince and Main and Main.CountriesManager and Main.CountriesManager.ProvinceToCountry then
         provinceCenter = targetProvince.Center or provinceCenter
         countryText = Main.CountriesManager.ProvinceToCountry[targetProvince] or "none"
     end
     
-    local text = string.format("Province: %s  Country: %s  key: %s  method: %s  px:%d py:%d type:%s neighbourCounts: %d",
-    idText,
-    tostring(countryText),
-    tostring(key),
-    tostring(foundBy),
-    px or 0,
-    py or 0,
-    tostring(targetProvince and targetProvince.Type or "Unknown"),
-    targetProvince and targetProvince.NeighboursCount)
-
+    local text = string.format("Province: %s  Country: %s  key: %s  method: %s  px:%d py:%d type:%s neighbourCounts: %d  FPS: %d",
+        idText,
+        tostring(countryText),
+        tostring(key),
+        tostring(foundBy),
+        px or 0,
+        py or 0,
+        tostring(targetProvince and targetProvince.Type or "Unknown"),
+        targetProvince and targetProvince.NeighboursCount or 0,
+        love.timer.getFPS())
+    
     local scaledCameraDraw = function()
         Game.drawMap()
     end
     
-
     Game.Camera:draw(scaledCameraDraw)
-    --Game.drawDivisions()
-
+    Game.drawDivisions()
     Game.drawGui()
+
+    love.graphics.print(text, 0, 100)
 end
 
 function Game.drawDivisions()
-    local counts = {}
-    for _, division in ipairs(Game.Divisions) do
-        local province = division.CurrentProvince
-        if province then
-            counts[province] = (counts[province] or 0) + 1
-        end
-    end
+    local cameraX, cameraY = Game.Camera:getPosition()
+    local cameraZoom = Game.cameraZoom
 
-    local rectangleWidth = 50
-    local rectangleHeight = 30
+    local screenWidth, screenHeight = love.graphics.getWidth(), love.graphics.getHeight()
+    local anchorX, anchorY = Game.Camera:getAnchor()
+    local anchorPixelX, anchorPixelY = (anchorX or 0.5) * screenWidth, (anchorY or 0.5) * screenHeight
 
-    for province, count in pairs(counts) do
+    local minX = cameraX - anchorPixelX / cameraZoom
+    local maxX = cameraX + (screenWidth - anchorPixelX) / cameraZoom
+    local minY = cameraY - anchorPixelY / cameraZoom
+    local maxY = cameraY + (screenHeight - anchorPixelY) / cameraZoom
+
+    local textScale = .8
+
+    local template = Game.DivisionTemplate
+    local frameWidth, frameHeight = template.frame.w, template.frame.h
+    local textObject = template.textObj
+
+    love.graphics.setColor(1, 1, 1, 1)
+
+    for province, data in pairs(Game.DivisionCounts) do
         local center = province.Center
-        if center then
-            local screenX, screenY = Game.Camera:toScreen(center.x, center.y)
+        if not center then goto continue end
 
-            love.graphics.push("all")
-            love.graphics.setColor(Framework.Color4.new(.1, .1, .1, 1):packed())
+        local worldX, worldY = center.x, center.y
+        if worldX < minX or worldX > maxX or worldY < minY or worldY > maxY then goto continue end
 
-            love.graphics.rectangle(
-                "fill",
-                screenX - rectangleWidth / 2,
-                screenY - rectangleHeight / 2,
-                rectangleWidth,
-                rectangleHeight
-            )
+        local screenX, screenY = Game.Camera:toScreen(worldX, worldY)
 
-            love.graphics.setColor(1, 1, 1, 1)
+        local flag = Game.FlagAtlas[data.owner]
+        local flagWidth, flagHeight = 0, 0
 
-            local text = tostring(count)
-            local font = love.graphics.getFont()
-            local textWidth = font:getWidth(text)
-            local textHeight = font:getHeight()
-
-            love.graphics.print(
-                text,
-                screenX - textWidth / 2,
-                screenY - textHeight / 2
-            )
-
-            love.graphics.pop()
+        if flag then
+            flagHeight = frameHeight * 0.8
+            flagWidth = flag:getWidth() * (flagHeight / flag:getHeight())
         end
+
+        local totalWidth = frameWidth + flagWidth
+
+        love.graphics.setColor(template.frame.color)
+        love.graphics.rectangle(
+            "fill",
+            screenX - totalWidth / 2,
+            screenY - frameHeight / 2,
+            totalWidth,
+            frameHeight
+        )
+
+        if flag then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(
+                flag,
+                screenX - totalWidth / 2 + frameHeight * 0.1,
+                screenY - frameHeight / 2 + frameHeight * 0.1,
+                0,
+                flagWidth / flag:getWidth(),
+                flagHeight / flag:getHeight()
+            )
+        end
+
+        textObject:setf(tostring(data.count), frameWidth / textScale, "center")
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(
+            textObject,
+            screenX - totalWidth / 2 + flagWidth / 2 + frameWidth / 2,
+            screenY - (textObject:getHeight() * textScale) / 2,
+            0,
+            textScale,
+            textScale
+        )
+
+        ::continue::
     end
 end
 

@@ -14,7 +14,7 @@ function Frame.new()
 end
 
 function Frame:draw()
-    love.graphics.push("all")
+    love.graphics.push()
     love.graphics.setColor(self.backgroundColor:packed())
     love.graphics.rectangle("fill",
         self.position.x,
@@ -37,8 +37,8 @@ function Frame:draw()
             self.cornerRadius
         )
     end
-
     love.graphics.pop()
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 return Frame

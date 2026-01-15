@@ -146,5 +146,58 @@ function Camera:draw(scaledCallbacks, unscaledCallbacks)
     love.graphics.pop()
 end
 
+function Camera:getVisibleBounds()
+    local w = love.graphics.getWidth()
+    local h = love.graphics.getHeight()
+    
+    local x1, y1 = self:toWorld(0, 0)
+    local x2, y2 = self:toWorld(w, h)
+    
+    return math.min(x1, x2), math.min(y1, y2), math.max(x1, x2), math.max(y1, y2)
+end
+
+function Camera:drawVisible(renderableObjects, unscaledCallbacks)
+    love.graphics.push("all")
+
+    local screenWidth = love.graphics.getWidth()
+    local screenHeight = love.graphics.getHeight()
+    local anchorPxX = (self.anchor.x or 0.5) * screenWidth
+    local anchorPxY = (self.anchor.y or 0.5) * screenHeight
+
+    love.graphics.translate(anchorPxX, anchorPxY)
+    love.graphics.scale(self.scale)
+    love.graphics.translate(-self.position.x, -self.position.y)
+
+    local minX, minY, maxX, maxY = self:getVisibleBounds()
+    
+    if type(renderableObjects) == "table" then
+        for _, obj in ipairs(renderableObjects) do
+            if obj.x and obj.y and obj.width and obj.height then
+                if obj.x < maxX and obj.x + obj.width > minX and
+                   obj.y < maxY and obj.y + obj.height > minY then
+                    if obj.draw then
+                        obj:draw()
+                    end
+                end
+            elseif obj.draw then 
+                obj:draw()
+            end
+        end
+    end
+
+    love.graphics.push()
+    love.graphics.scale(1 / self.scale)
+
+    if type(unscaledCallbacks) == "table" then
+        for _, callback in ipairs(unscaledCallbacks) do
+            callback()
+        end
+    elseif type(unscaledCallbacks) == "function" then
+        unscaledCallbacks()
+    end
+
+    love.graphics.pop()
+    love.graphics.pop()
+end
 
 return Camera

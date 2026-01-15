@@ -2,14 +2,6 @@ local ImageButton = setmetatable({}, { __index = Framework.Component })
 ImageButton.__type = "ImageButton"
 ImageButton.__index = ImageButton
 
-local brightnessShaderCode = [[
-    extern float brightnessFactor;
-    vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-        vec4 pixel = Texel(texture, texture_coords) * color;
-        return vec4(pixel.rgb * brightnessFactor, pixel.a);
-    }
-]]
-
 function ImageButton.new(path)
 	local self = setmetatable(Framework.Component.new(), ImageButton)
 	self.type = Framework.Component.Type.ImageButton
@@ -26,7 +18,6 @@ function ImageButton.new(path)
 	self.borderSize = 0
 	self.borderColor = Framework.Color4.new(1, 1, 1, 1)
 	self.cornerRadius = 0
-	self.brightnessShader = love.graphics.newShader(brightnessShaderCode)
 
 	self.onClick = nil
 
@@ -70,7 +61,7 @@ local function computeDrawParams(self)
 end
 
 function ImageButton:draw()
-    love.graphics.push("all")
+    love.graphics.push()
 
 	local color = self.color
     if self.isMouseDown then
@@ -103,26 +94,23 @@ function ImageButton:draw()
         )
     end
 
-    if self.image then
-        love.graphics.stencil(stencil, "replace", 1)
-        love.graphics.setStencilTest("greater", 0)
+	if self.image then
+        if self.cornerRadius > 0 then
+            love.graphics.stencil(stencil, "replace", 1)
+            love.graphics.setStencilTest("greater", 0)
+        end
 
         local dx, dy, r, sx, sy = computeDrawParams(self)
-
-		if self.isMouseHovering then
-			love.graphics.setShader(self.brightnessShader)
-			self.brightnessShader:send("brightnessFactor", 1)
-		end
-
-        love.graphics.setColor(color:packed())
+        love.graphics.setColor(self.color:unpack())
         love.graphics.draw(self.image, dx, dy, r, sx, sy)
 
-        love.graphics.setStencilTest()
+        if self.cornerRadius > 0 then
+            love.graphics.setStencilTest()
+        end
     end
 	
-	love.graphics.setShader()
-
     love.graphics.pop()
+	love.graphics.setColor(1, 1, 1, 1)
 end
 
 return ImageButton

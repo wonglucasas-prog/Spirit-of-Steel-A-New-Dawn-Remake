@@ -56,7 +56,7 @@ local function computeDrawParams(self)
 end
 
 function ImageLabel:draw()
-    love.graphics.push("all")
+    love.graphics.push()
 
     local function stencil()
         love.graphics.rectangle("fill",
@@ -82,18 +82,23 @@ function ImageLabel:draw()
         )
     end
 
-    if self.image then
-        love.graphics.stencil(stencil, "replace", 1)
-        love.graphics.setStencilTest("greater", 0)
+	if self.image then
+        if self.cornerRadius > 0 then
+            love.graphics.stencil(stencil, "replace", 1)
+            love.graphics.setStencilTest("greater", 0)
+        end
 
         local dx, dy, r, sx, sy = computeDrawParams(self)
         love.graphics.setColor(self.color:unpack())
         love.graphics.draw(self.image, dx, dy, r, sx, sy)
 
-        love.graphics.setStencilTest()
+        if self.cornerRadius > 0 then
+            love.graphics.setStencilTest()
+        end
     end
 
     love.graphics.pop()
+	love.graphics.setColor(1, 1, 1, 1)
 end
 
 return ImageLabel

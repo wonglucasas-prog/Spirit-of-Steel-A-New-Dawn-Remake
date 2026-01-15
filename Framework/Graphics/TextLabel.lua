@@ -5,25 +5,38 @@ Label.__index = Label
 function Label.new(text, font)
     local self = setmetatable(Framework.Component.new(), Label)
     self.type = Framework.Component.Type.Label
-    self.text = text or ""
+    self.text = ""
 
     -- Property: Font Object (can be nil to use default)
-    self.font = font or nil 
+    self.font = font or love.graphics.getFont()
     
     -- New Property: Scale
     -- 1.0 = original size, 2.0 = double size, 0.5 = half size
-    self.fontScale = 1.0 
+    self.fontScale = 1.0
 
     self.textColor = Framework.Color4.new(1, 1, 1, 1)
+    self.textObject = love.graphics.newText(love.graphics.getFont(), "")
 
     self.textAlignment = Framework.TextManager.Alignment.Left
     self.textVAlignment = Framework.TextManager.VAlignment.Center
+
+    self:setText(text)
     
     return self
 end
 
+function Label:setText(newText)
+    self.text = newText or ""
+    local scale = self.fontScale or 1
+    
+    local wrapWidth = self.dimension.width / scale
+    local alignment = string.lower(self.textAlignment.Name)
+
+    self.textObject:setf(self.text, wrapWidth, alignment)
+end
+
 function Label:draw()
-    love.graphics.push("all")
+    love.graphics.push()
 
     local activeFont = self.font or love.graphics.getFont()
     local scale = self.fontScale or 1
@@ -41,7 +54,9 @@ function Label:draw()
         yOffset = self.dimension.height - scaledHeight
     end
 
-    love.graphics.printf(
+    love.graphics.draw(self.textObject, self.position.x, self.position.y + yOffset, 0, scale, scale)
+
+    --[[love.graphics.printf(
         self.text,
         self.position.x,
         self.position.y + yOffset,
@@ -50,9 +65,10 @@ function Label:draw()
         0,
         scale,
         scale
-    )
+    )]]
 
     love.graphics.pop()
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 return Label
