@@ -49,9 +49,4 @@ function Division:__tostring()
         tostring(self.hardness), tostring(self.defense), tostring(self.breakthrough), tostring(self.width))
 end
 
--- Example usage:
--- local Division = require("maps.Objects.Division")
--- local inf = Division.new{ name = "Infantry", softAttack = 2, hardAttack = 0, hardness = 0, defense = 1, breakthrough = 0, width = 1 }
--- print(inf)
-
 return Division
