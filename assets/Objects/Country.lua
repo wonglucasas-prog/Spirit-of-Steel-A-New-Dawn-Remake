@@ -33,11 +33,24 @@ function Country.new(name, colour)
         WarSupport = 50,
     }
     self.Provinces = {}
+    self.MilitaryAccess = {} -- Table of country tags that have military access
     return self
 end
 
 function Country:addProvince(province)
     table.insert(self.Provinces, province)
+end
+
+function Country:grantMilitaryAccess(countryTag)
+    self.MilitaryAccess[countryTag] = true
+end
+
+function Country:revokeMilitaryAccess(countryTag)
+    self.MilitaryAccess[countryTag] = nil
+end
+
+function Country:hasMilitaryAccess(countryTag)
+    return self.MilitaryAccess[countryTag] == true
 end
 
 return Country

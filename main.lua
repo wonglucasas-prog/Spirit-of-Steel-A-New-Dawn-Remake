@@ -6,6 +6,7 @@ _G.Main = {
     -- Managers
     ProvincesManager = require "assets.Managers.ProvincesManager",
     CountriesManager = require "assets.Managers.CountriesManager",
+    DivisionsManager = require "assets.Managers.DivisionManager",
 
     -- Objects
     Province = require "assets.Objects.Province"
