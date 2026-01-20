@@ -672,6 +672,7 @@ function Game.update(dt)
 
     Main.DivisionsManager.updateMovement(dt)
     Main.DivisionsManager.updateDivisionLerps(dt)
+    Main.DivisionsManager.updatePathTweens(dt)
 
     Game.Camera:update(dt)
 
@@ -746,11 +747,11 @@ function Game.draw()
     end
     
     Game.Camera:draw(cameraDraw)
+    Main.DivisionsManager.drawPathTweens()
     Main.DivisionsManager.drawMovementPaths()
     Main.DivisionsManager.drawDivisions()
     Game.drawSelectionBox()
     Game.drawGui()
-    love.graphics.print(text, 0, 100)
 end
 
 return Game

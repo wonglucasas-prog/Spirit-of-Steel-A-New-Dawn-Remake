@@ -16,6 +16,7 @@ function DivisionManager.initialize()
     DivisionManager.DivisionOwners = {}
     DivisionManager.DivisionCounts = {}
     DivisionManager.DIVISION_LERP_T = 0.2 -- Fixed lerp factor per frame, independent of game speed
+    DivisionManager.PathTweens = {} -- Background tween effects for movement paths
     
     DivisionManager.FlagAtlas = {}
     DivisionManager.FlagQuads = {}
@@ -258,10 +259,9 @@ function DivisionManager.findPath(startProvince, endProvince, movingCountryTag)
         end
     end
     
-    return nil -- No path found
+    return nil
 end
 
--- Order division to move to target province
 function DivisionManager.orderMove(targetProvince)
     local selectedCount = 0
     for divIndex, _ in pairs(Main.Game.Selection.selectedDivisions) do
@@ -269,51 +269,37 @@ function DivisionManager.orderMove(targetProvince)
         local div = DivisionManager.Divisions[divIndex]
         
         if div then
-            -- Check if division is already moving
             local existingMovement = Main.Game.MovementQueues[divIndex]
             
-            -- Determine the starting point for new path calculation
             local startNode
             local shouldKeepMovement = false
             
             if existingMovement then
-                -- Calculate current progress
                 local targetMovementTime = Main.Game.MOVEMENT_TIME / Main.Game.Speed
                 local progress = existingMovement.timer / targetMovementTime
                 
-                -- Get the final target province in the current path
                 local finalTarget = existingMovement.path[#existingMovement.path]
                 
-                -- Check if the new target is the same as the current final target
                 if targetProvince == finalTarget then
-                    -- Same target, keep the movement (don't reset)
                     shouldKeepMovement = true
                     startNode = div.CurrentProvince
                     
-                    -- Clear any active lerp when changing target
                     DivisionManager.DivisionLerps[divIndex] = nil
-                    -- FIX: Sync division position with the current province
-                    -- This prevents the division from being stuck mid-air
                     if div.CurrentProvince then
                         DivisionManager.DivisionPositionsX[divIndex] = div.CurrentProvince.Center.x
                         DivisionManager.DivisionPositionsY[divIndex] = div.CurrentProvince.Center.y
                     end
                 else
-                    -- Different target, reset
                     shouldKeepMovement = false
                     startNode = div.CurrentProvince
                     
-                    -- Clear any active lerp when changing target
                     DivisionManager.DivisionLerps[divIndex] = nil
-                    -- FIX: Sync division position with the current province
-                    -- This prevents the division from being stuck mid-air
                     if div.CurrentProvince then
                         DivisionManager.DivisionPositionsX[divIndex] = div.CurrentProvince.Center.x
                         DivisionManager.DivisionPositionsY[divIndex] = div.CurrentProvince.Center.y
                     end
                 end
             else
-                -- If not moving, start from current province
                 startNode = div.CurrentProvince
                 shouldKeepMovement = false
             end
@@ -362,6 +348,25 @@ function DivisionManager.orderMove(targetProvince)
                             DivisionManager.DivisionPositionsX[divIndex] = path[1].Center.x
                             DivisionManager.DivisionPositionsY[divIndex] = path[1].Center.y
                         end
+                        
+                        -- Add background tween effect for the path
+                        -- This shows a visual effect from current province to target province
+                        if path and #path > 1 then
+                            local targetProvince = path[#path]
+                            local currentProvince = DivisionManager.Divisions[divIndex].CurrentProvince
+                            
+                            if currentProvince and targetProvince then
+                                DivisionManager.PathTweens[divIndex] = {
+                                    startX = currentProvince.Center.x,
+                                    startY = currentProvince.Center.y,
+                                    endX = targetProvince.Center.x,
+                                    endY = targetProvince.Center.y,
+                                    timer = 0,
+                                    duration = 1.5, -- 1.5 seconds for the background tween
+                                    isComplete = false
+                                }
+                            end
+                        end
                     end
                 end
             end
@@ -375,7 +380,7 @@ end
 function DivisionManager.updateMovement(dt)
     for divIndex, movement in pairs(Main.Game.MovementQueues) do
         if movement and not Main.Game.Paused then
-            movement.timer = movement.timer + dt * Main.Game.Speed
+            movement.timer = movement.timer + dt * Main.Game.Speed ^ 2
             
             if movement.timer >= Main.Game.MOVEMENT_TIME then
                 -- Check if timer threshold reached to advance to next province
@@ -451,6 +456,21 @@ function DivisionManager.updateDivisionLerps(dt)
                 -- Update start position for next frame's lerp
                 lerp.startX = newX
                 lerp.startY = newY
+            end
+        end
+    end
+end
+
+-- Update path tween effects (background visual effects)
+function DivisionManager.updatePathTweens(dt)
+    for divIndex, tween in pairs(DivisionManager.PathTweens) do
+        if tween and not Main.Game.Paused then
+            tween.timer = tween.timer + dt
+            
+            -- Check if the tween is complete
+            if tween.timer >= tween.duration then
+                tween.isComplete = true
+                DivisionManager.PathTweens[divIndex] = nil
             end
         end
     end
@@ -648,10 +668,8 @@ end
 
 -- Draw movement paths
 function DivisionManager.drawMovementPaths()
-    -- Draw movement progress from current division position to next province
-    love.graphics.setLineWidth(8)
+    love.graphics.setLineWidth(6)
     
-    -- Draw lerp progress (current smooth movement) with bezier curve
     for divIndex, lerp in pairs(DivisionManager.DivisionLerps) do
         if DivisionManager.isDivisionSelected(divIndex) then
             local startX = lerp.startX
@@ -659,26 +677,22 @@ function DivisionManager.drawMovementPaths()
             local endX = lerp.endX
             local endY = lerp.endY
             
-            -- Calculate progress based on distance remaining
             local currentX = DivisionManager.DivisionPositionsX[divIndex]
             local currentY = DivisionManager.DivisionPositionsY[divIndex]
             local distToEnd = math.sqrt((endX - currentX)^2 + (endY - currentY)^2)
             local totalDist = math.sqrt((endX - startX)^2 + (endY - startY)^2)
             local progress = totalDist > 0 and (1 - distToEnd / totalDist) or 0
             
-            -- Calculate control points for bezier curve
             local dx = endX - startX
             local dy = endY - startY
             local dist = math.sqrt(dx * dx + dy * dy)
             
-            -- Control points create a curved path with larger arc
-            local controlOffset = dist * 0.5 -- Increased from 0.3 to 0.5 for larger curve
+            local controlOffset = dist * 0.5
             local p0 = {x = startX, y = startY}
-            local p1 = {x = startX + dx * 0.3, y = startY + dy * 0.3 - controlOffset * 0.4} -- Increased offset
-            local p2 = {x = startX + dx * 0.7, y = startY + dy * 0.7 - controlOffset * 0.4} -- Increased offset
+            local p1 = {x = startX + dx * 0.3, y = startY + dy * 0.3 - controlOffset * 0.4}
+            local p2 = {x = startX + dx * 0.7, y = startY + dy * 0.7 - controlOffset * 0.4}
             local p3 = {x = endX, y = endY}
             
-            -- Draw full bezier curve in dim color
             love.graphics.setColor(0.2, 1, 0.2, 0.2)
             local sx1, sy1 = Main.Game.Camera:toScreen(p0.x, p0.y)
             local sx2, sy2 = Main.Game.Camera:toScreen(p3.x, p3.y)
@@ -735,6 +749,67 @@ function DivisionManager.drawMovementPaths()
     end
     
     love.graphics.setLineWidth(1)
+end
+
+-- Update path tween effects (background visual effects)
+function DivisionManager.updatePathTweens(dt)
+    for divIndex, tween in pairs(DivisionManager.PathTweens) do
+        if tween and not Main.Game.Paused then
+            tween.timer = tween.timer + dt
+            
+            -- Check if the tween is complete
+            if tween.timer >= tween.duration then
+                tween.isComplete = true
+                DivisionManager.PathTweens[divIndex] = nil
+            end
+        end
+    end
+end
+
+-- Draw background path tween effects
+function DivisionManager.drawPathTweens()
+    for divIndex, tween in pairs(DivisionManager.PathTweens) do
+        if tween and tween.path and #tween.path > 1 then
+            local div = DivisionManager.Divisions[divIndex]
+            if div then
+                -- Calculate alpha based on timer (fade in then fade out)
+                local alpha = 1.0
+                if tween.timer < tween.duration * 0.3 then
+                    -- Fade in
+                    alpha = tween.timer / (tween.duration * 0.3)
+                elseif tween.timer > tween.duration * 0.7 then
+                    -- Fade out
+                    alpha = 1.0 - ((tween.timer - tween.duration * 0.7) / (tween.duration * 0.3))
+                end
+                
+                -- Get country color
+                local country = Main.CountriesManager.getCountryByTag(div.CountryTag)
+                local r, g, b = 0.5, 0.5, 0.5 -- Default gray
+                if country then
+                    r, g, b = country.Color.r / 255, country.Color.g / 255, country.Color.b / 255
+                end
+                
+                -- Draw the path with the calculated alpha
+                love.graphics.setColor(r, g, b, alpha * 0.4)
+                love.graphics.setLineWidth(3)
+                
+                -- Draw bezier curve through the path points
+                local points = {}
+                for i, point in ipairs(tween.path) do
+                    table.insert(points, point.x)
+                    table.insert(points, point.y)
+                end
+                
+                love.graphics.line(points)
+                
+                -- Draw small dots at each waypoint to make the path more visible
+                love.graphics.setColor(r, g, b, alpha * 0.6)
+                for i, point in ipairs(tween.path) do
+                    love.graphics.circle("fill", point.x, point.y, 2)
+                end
+            end
+        end
+    end
 end
 
 return DivisionManager
