@@ -1,8 +1,10 @@
 local Game = {}
 
+local GameUi = require("assets.Uis.GameUi")
+
 function Game.initializePlayer()
     Game.Player = {
-        Country = "GER"
+        Country = "MAL"
     }
 end
 
@@ -25,264 +27,7 @@ function Game.initializeDate()
 end
 
 function Game.initializeGui()
-    Game.Gui = {}
-    Game.UIScale = 1.0
-
-    Main.Font = Framework.loadFont(15 * Game.UIScale)
-    love.graphics.setFont(Main.Font)
-
-    local topBar = Framework.Frame.new()
-    topBar.position = Framework.Vector2.new(0, 0)
-    topBar.dimension = Framework.Dim2.new(love.graphics.getWidth(), 40 * Game.UIScale)
-    topBar.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
-    topBar.borderSize = 0
-    topBar.zIndex = 100
-
-    local worldTentionFrame = Framework.Frame.new()
-    worldTentionFrame.dimension = Framework.Dim2.new(80 * Game.UIScale, 80 * Game.UIScale)
-    worldTentionFrame.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
-    worldTentionFrame.borderSize = 0
-    worldTentionFrame.cornerRadius = 40 * Game.UIScale
-    worldTentionFrame.zIndex = 101
-
-    local worldTentionImage = Framework.Image.new("icons/earth.png")
-    worldTentionImage.dimension = Framework.Dim2.new(60 * Game.UIScale, 60 * Game.UIScale)
-    worldTentionImage.scaleMode = "fill"
-    worldTentionImage.zIndex = 102
-
-    local dateLabel = Framework.Label.new("01/01/1935  01:00")
-    dateLabel.dimension = Framework.Dim2.new(250 * Game.UIScale, 15 * Game.UIScale)
-    dateLabel.textAlignment = Framework.TextManager.Alignment.Right
-    dateLabel.zIndex = 102
-    dateLabel:setText("01/01/1935  01:00")
-
-    local plusButton = Framework.Button.new("+")
-    plusButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
-    plusButton.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    plusButton.borderSize = 0
-    plusButton.cornerRadius = 10 * Game.UIScale
-    plusButton.zIndex = 102
-
-    local minusButton = Framework.Button.new("-")
-    minusButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
-    minusButton.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    minusButton.borderSize = 0
-    minusButton.cornerRadius = 10 * Game.UIScale
-    minusButton.zIndex = 102
-    
-    local playAsCountryFlag = Framework.ImageButton.new(string.format("flags/%s.png", Game.Player.Country))
-    playAsCountryFlag.position = Framework.Vector2.new(8, 8)
-    local playAsCountryFlagOverlay = Framework.Image.new("flags/flag_overlay.png")
-    playAsCountryFlagOverlay.position = playAsCountryFlag.position
-
-    local flagScale = topBar.dimension.height * 1.4 / playAsCountryFlag.dimension.height
-    
-    playAsCountryFlag.dimension = Framework.Dim2.new(playAsCountryFlag.dimension.width * flagScale, playAsCountryFlag.dimension.height * flagScale)
-    playAsCountryFlag.scaleMode = "fill"
-    playAsCountryFlag.cornerRadius = 5
-    playAsCountryFlag.zIndex = 102
-
-    playAsCountryFlagOverlay.dimension = playAsCountryFlag.dimension
-    playAsCountryFlagOverlay.scaleMode = "fill"
-    playAsCountryFlagOverlay.cornerRadius = 5
-    playAsCountryFlagOverlay.zIndex = 103
-
-    local playAsCountryFlagFrame = Framework.Frame.new()
-    playAsCountryFlagFrame.dimension = Framework.Dim2.new(playAsCountryFlag.dimension.width + (16), playAsCountryFlag.dimension.height + (16))
-    playAsCountryFlagFrame.backgroundColor = Framework.Color4.new(.1, .1, .1, 1)
-    playAsCountryFlagFrame.borderSize = 0
-    playAsCountryFlagFrame.cornerRadius = 5
-    playAsCountryFlagFrame.zIndex = 101
-
-    local moneyIcon = Framework.Image.new("icons/dollar.png")
-    moneyIcon.position = Framework.Vector2.new(playAsCountryFlag.dimension.width + (20 * Game.UIScale), 10 * Game.UIScale)
-    moneyIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    moneyIcon.zIndex = 102
-
-    local moneyLabel = Framework.Label.new("")
-    moneyLabel.position = Framework.Vector2.new(moneyIcon.position.x + moneyIcon.dimension.width + 5 * Game.UIScale, 10 * Game.UIScale)
-    moneyLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
-    moneyLabel.textAlignment = Framework.TextManager.Alignment.Center
-    moneyLabel.zIndex = 102
-    moneyLabel:setText("150M")
-
-    local adminIcon = Framework.Image.new("icons/admin.png")
-    adminIcon.position = Framework.Vector2.new(moneyLabel.position.x + moneyLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    adminIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    adminIcon.zIndex = 102
-
-    local adminLabel = Framework.Label.new("")
-    adminLabel.position = Framework.Vector2.new(adminIcon.position.x + adminIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    adminLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
-    adminLabel.textAlignment = Framework.TextManager.Alignment.Center
-    adminLabel.zIndex = 102
-    adminLabel:setText("150")
-
-    local researchIcon = Framework.Image.new("icons/research.png")
-    researchIcon.position = Framework.Vector2.new(adminLabel.position.x + adminLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    researchIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    researchIcon.zIndex = 102
-
-    local researchLabel = Framework.Label.new("")
-    researchLabel.position = Framework.Vector2.new(researchIcon.position.x + researchIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    researchLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
-    researchLabel.textAlignment = Framework.TextManager.Alignment.Center
-    researchLabel.zIndex = 102
-    researchLabel:setText("50")
-
-    local manpowerIcon = Framework.Image.new("icons/manpower.png")
-    manpowerIcon.position = Framework.Vector2.new(researchLabel.position.x + researchLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    manpowerIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    manpowerIcon.zIndex = 102
-
-    local manpowerLabel = Framework.Label.new("")
-    manpowerLabel.position = Framework.Vector2.new(manpowerIcon.position.x + manpowerIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    manpowerLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
-    manpowerLabel.textAlignment = Framework.TextManager.Alignment.Center
-    manpowerLabel.zIndex = 102
-    manpowerLabel:setText("2.5M")
-
-    local factoriesIcon = Framework.Image.new("icons/factory.png")
-    factoriesIcon.position = Framework.Vector2.new(manpowerLabel.position.x + manpowerLabel.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    factoriesIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    factoriesIcon.zIndex = 102
-
-    local factoriesLabel = Framework.Label.new("")
-    factoriesLabel.position = Framework.Vector2.new(factoriesIcon.position.x + factoriesIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    factoriesLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
-    factoriesLabel.textAlignment = Framework.TextManager.Alignment.Center
-    factoriesLabel.zIndex = 102
-    factoriesLabel:setText("12")
-
-    local stabilityIcon = Framework.Image.new("icons/stability.png")
-    stabilityIcon.position = Framework.Vector2.new(factoriesLabel.position.x + factoriesLabel.dimension.width + (7 * Game.UIScale), 10 * Game.UIScale)
-    stabilityIcon.dimension = Framework.Dim2.new(20 * Game.UIScale, 20 * Game.UIScale)
-    stabilityIcon.zIndex = 102
-
-    local stabilityLabel = Framework.Label.new("")
-    stabilityLabel.position = Framework.Vector2.new(stabilityIcon.position.x + stabilityIcon.dimension.width + (5 * Game.UIScale), 10 * Game.UIScale)
-    stabilityLabel.dimension = Framework.Dim2.new(50 * Game.UIScale, 20 * Game.UIScale)
-    stabilityLabel.textAlignment = Framework.TextManager.Alignment.Center
-    stabilityLabel.zIndex = 102
-    stabilityLabel:setText("85%")
-
-    local dicisionButton = Framework.Button.new("Dicision")
-    dicisionButton.position = Framework.Vector2.new(playAsCountryFlag.dimension.width + (20 * Game.UIScale), 45 * Game.UIScale)
-    dicisionButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
-    dicisionButton.dimension = Framework.Dim2.new(100 * Game.UIScale, 22 * Game.UIScale)
-    dicisionButton.borderSize = 0
-    dicisionButton.fontScale = 1
-    dicisionButton.cornerRadius = 3 * Game.UIScale
-    dicisionButton.zIndex = 102
-
-    local researchButton = Framework.Button.new("Research")
-    researchButton.position = Framework.Vector2.new(dicisionButton.position.x + dicisionButton.dimension.width + (5 * Game.UIScale), 45 * Game.UIScale)
-    researchButton.backgroundColor = Framework.Color4.new(0.1, 0.1, 0.1, 1)
-    researchButton.dimension = Framework.Dim2.new(100 * Game.UIScale, 22 * Game.UIScale)
-    researchButton.borderSize = 0
-    researchButton.fontScale = 1
-    researchButton.cornerRadius = 3 * Game.UIScale
-    researchButton.zIndex = 102
-
-    researchButton.onClick = function()
-
-    end
-
-    plusButton.onClick = function()
-        Game.Speed = math.min(5, Game.Speed + 1)
-    end
-
-    minusButton.onClick = function()
-        Game.Speed = math.max(1, Game.Speed - 1)
-    end
-
-    for i = 1, 5 do
-        local speedBar = Framework.Frame.new()
-        speedBar.position = Framework.Vector2.new(love.graphics.getWidth() - (115 * Game.UIScale) - (i - 1) * (25 * Game.UIScale), 32.5 * Game.UIScale)
-        speedBar.dimension = Framework.Dim2.new(20 * Game.UIScale, 2.5 * Game.UIScale)
-        speedBar.backgroundColor = Framework.Color4.new(1, 1, 1, 1)
-        speedBar.borderSize = 0
-        speedBar.cornerRadius = 2 * Game.UIScale
-        speedBar.zIndex = 102
-
-        if Game.Speed >= i then
-            speedBar.backgroundColor = Framework.Color4.new(1, 1, 1, 1)
-        else
-            speedBar.backgroundColor = Framework.Color4.new(.2, .2, .2, 1)
-        end
-
-        speedBar.onUpdate = function(dt)
-            speedBar.position = Framework.Vector2.new(love.graphics.getWidth() - (115 * Game.UIScale) - (i - 1) * (25 * Game.UIScale), 31 * Game.UIScale)
-            if Game.Speed >= i then
-                speedBar.backgroundColor = speedBar.backgroundColor:lerp(Framework.Color4.new(1, 1, 1, 1), 0.2)
-            else
-                speedBar.backgroundColor = speedBar.backgroundColor:lerp(Framework.Color4.new(.2, .2, .2, 1), 0.2)
-            end
-        end
-
-        Game.Gui["speedBar" .. i] = speedBar
-    end
-
-    Game.Gui.topBar = topBar
-    Game.Gui.worldTentionFrame = worldTentionFrame
-    Game.Gui.worldTentionImage = worldTentionImage
-    
-    Game.Gui.dateLabel = dateLabel
-
-    Game.Gui.plusButton = plusButton
-    Game.Gui.minusButton = minusButton
-
-    Game.Gui.playAsCountryFlag = playAsCountryFlag
-    Game.Gui.playAsCountryFlagFrame = playAsCountryFlagFrame
-    Game.Gui.playAsCountryFlagOverlay = playAsCountryFlagOverlay
-
-    Game.Gui.moneyIcon = moneyIcon
-    Game.Gui.moneyLabel = moneyLabel
-
-    Game.Gui.adminIcon = adminIcon
-    Game.Gui.adminLabel = adminLabel
-
-    Game.Gui.researchIcon = researchIcon
-    Game.Gui.researchLabel = researchLabel
-
-    Game.Gui.manpowerIcon = manpowerIcon
-    Game.Gui.manpowerLabel = manpowerLabel
-
-    Game.Gui.factoriesIcon = factoriesIcon
-    Game.Gui.factoriesLabel = factoriesLabel
-
-    Game.Gui.stabilityIcon = stabilityIcon
-    Game.Gui.stabilityLabel = stabilityLabel
-
-    Game.Gui.dicisionButton = dicisionButton
-    Game.Gui.researchButton = researchButton
-
-    topBar.onUpdate = function(dt)
-        local mx, my = love.mouse.getPosition()
-        local mouseDown = love.mouse.isDown(1)
-
-        topBar.dimension = Framework.Dim2.new(love.graphics.getWidth(), 40 * Game.UIScale)
-
-        playAsCountryFlag:updateMouse(mx, my, mouseDown)
-
-        plusButton.position = Framework.Vector2.new(love.graphics.getWidth() - (115 * Game.UIScale), 45 * Game.UIScale)
-        plusButton:updateMouse(mx, my, mouseDown)
-
-        minusButton.position = Framework.Vector2.new(love.graphics.getWidth() - (140 * Game.UIScale), 45 * Game.UIScale)
-        minusButton:updateMouse(mx, my, mouseDown)
-
-        worldTentionFrame.position = Framework.Vector2.new(love.graphics.getWidth() - (90 * Game.UIScale), 0)
-        worldTentionImage.position = Framework.Vector2.new(love.graphics.getWidth() - (80 * Game.UIScale), 10 * Game.UIScale)
-
-        dateLabel.position = Framework.Vector2.new(love.graphics.getWidth() - (345 * Game.UIScale), 10 * Game.UIScale)
-        dateLabel.text = string.format("%02d/%02d/%04d  %02d:00", Game.Date.Day, Game.Date.Month, Game.Date.Year, Game.Date.Hour)
-        dateLabel:setText(dateLabel.text)
-
-        dicisionButton:updateMouse(mx, my, mouseDown)
-        researchButton:updateMouse(mx, my, mouseDown)
-    end
-
-    Framework.GuiManager.add("TopBar", Game.Gui)
+    GameUi.initializeGui(Game)
 end
 
 function Game.initializeMap()
@@ -513,7 +258,7 @@ end
 function Game.initializeMovement()
     -- Movement queue: each division can have a path of provinces to move through
     Game.MovementQueues = {} -- [divisionIndex] = {path = {province1, province2...}, currentStep = 1, timer = 0}
-    Game.MOVEMENT_TIME = 3 -- seconds per province
+    Game.MOVEMENT_TIME = 7 -- seconds per province
 end
 
 function Game.handleMousePress(x, y, button)    
@@ -686,6 +431,7 @@ function Game.update(dt)
     Main.DivisionsManager.updateStackOffsets(dt)
 
     Framework.GuiManager.update("TopBar", dt)
+    Framework.GuiManager.update("DivisionGuis", dt)
 end
 
 function Game.getProvinceUnderMouse()
@@ -716,8 +462,7 @@ function Game.drawMap()
 end
 
 function Game.drawGui()
-    Framework.GuiManager.draw("TopBar")
-    Framework.GuiManager.draw("DivisionGuis", Game.Camera)
+    GameUi.drawGui()
 end
 
 function Game.draw()    
